@@ -51,7 +51,18 @@ layer1_out=10   # the number of hiding layer 's output
 layer1=add_layer(xs,1,784,layer1_out,activation_function=tf.nn.relu)
 layer_predict=add_layer(layer1,2,layer1_out,10,activation_function=tf.nn.softmax)
 
+# accuracy start
+def accuracy_cong(test_image,test_labels):
+    global layer_predict
+    y_predict=layer_predict
+    correct_prediction=tf.equal(tf.arg_max(y_predict,1),tf.arg_max(test_labels,1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    return accuracy
+with tf.name_scope('accuracy'):
 
+    accuracy_conginize=accuracy_cong(test_image=xs,test_labels=ys)
+    tf.summary.scalar('accuracy',accuracy_conginize)
+# accuracy end
 with tf.name_scope('loss'):
     cross_entropy=cross_entropy(train_labels=ys,predictions=layer_predict)
     tf.summary.scalar('loss',cross_entropy)
@@ -61,7 +72,7 @@ train=tf.train.GradientDescentOptimizer(0.4).minimize(cross_entropy)
 init=tf.global_variables_initializer()
 
 # create the simple net end
-
+'''
 def accuracy_cong(test_image,test_labels):
     global layer_predict
     y_predict=sess.run(layer_predict,feed_dict={xs:test_image})
@@ -71,7 +82,7 @@ def accuracy_cong(test_image,test_labels):
 
         accuracy_conginize=sess.run(accuracy,feed_dict={xs:test_image,ys:test_labels})
     return accuracy_conginize
-
+'''
 # define session and run start
 sess=tf.Session()
 merged=tf.summary.merge_all()
@@ -85,14 +96,14 @@ while 1:
     batch_x,batch_y = train_images[index,] ,train_labels[index,]
     sess.run(train,feed_dict={xs:batch_x,ys:batch_y})
     if i%50 ==0:
-        acc=accuracy_cong(test_images,test_labels)
+        #acc=accuracy_cong(test_images,test_labels)
+        acc=sess.run(accuracy_conginize,feed_dict={xs:test_images,ys:test_labels})
         rs=sess.run(merged,feed_dict={xs:batch_x,ys:batch_y})
         writer.add_summary(rs,i)
         print(i,acc)
-        if acc>=0.95:
+        if acc>=0.89:
             break
 
 
 sess.close()
 # define session and run end
-

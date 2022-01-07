@@ -33,7 +33,6 @@ def add_layer(inputs, n_layer,in_size,out_size,activation_function=None):
 
 
 x_data=np.linspace(-1,1,300)[:,np.newaxis]
-
 noise=np.random.normal(0,0.05,x_data.shape).astype(np.float32)
 y_data=np.square(x_data)-0.5+noise
 with tf.name_scope('input'):
@@ -54,12 +53,18 @@ sess=tf.Session()
 merged=tf.summary.merge_all()
 writer=tf.summary.FileWriter("logs/",sess.graph)
 sess.run(init)
-
+fig = plt.figure()
+ax = fig.add_subplot(1,1,1)
+ax.scatter(x_data, y_data)
+plt.ion()
+plt.show()
 
 for i in range(1000):
     sess.run(train_step,feed_dict={x_step:x_data,y_step:y_data})
     if i%50==0:
         rs=sess.run(merged,feed_dict={x_step:x_data,y_step:y_data})
         writer.add_summary(rs,i)
-        #print(i,sess.run(loss,feed_dict={x_step:x_data,y_step:y_data}))
-        #prediction_value=sess.run(layer2_prediction,feed_dict={x_step:x_data}) 
+        print(i,sess.run(loss,feed_dict={x_step:x_data,y_step:y_data}))
+        prediction_value=sess.run(layer2_prediction,feed_dict={x_step:x_data}) 
+lines=plt.plot(x_data, prediction_value, 'r-', lw=1)
+plt.pause(1000) 
